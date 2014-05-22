@@ -69,7 +69,7 @@ SM_DATE = {
           }
 
 SM_URL = { 
-        "huff": [ 'http://www.huffingtonpost.com//sitemap.xml'],
+        "huff": [ 'http://www.huffingtonpost.com//original-content-map.xml'],
         "wsj": ['http://online.wsj.com/x_google_news.html', 
                 'http://online.wsj.com/x_google_news_ap.html',
                 'http://online.wsj.com/x_google_news_wire.html'

@@ -3,14 +3,12 @@ from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from MacCrawl.contrib.linkextractors.lxmllinkextract import CustomLinkExtractor
 
 
-URL_MAP = { "yahoo": ["http://www.yahoo.com"],
+URL_MAP = {
         "gnews": ["https://news.google.com"],
         "theverge": ["http://www.theverge.com"]}
 
 
-RULE_MAP = { "yahoo": (
-            Rule(SgmlLinkExtractor(deny=('\.js', '\.php', 'search.yahoo.com','yahoo.uservoice.com', '\?q=')), callback='process_content', follow=True),
-            ),
+RULE_MAP = { 
             "gnews":  (
             Rule(SgmlLinkExtractor(allow=(r'https?://news.google.com/news/section.*'), deny=(r'.*ict=clu_top'), restrict_xpaths=(r'//*[@id="nav-menu-wrapper"]', r'//*[@id="main-pane"]/div/div/div[3]'))),
             # for those website in the deny_domains are already crawled by sitemap crawler, here we don't need to re-crawl them, just ignore them

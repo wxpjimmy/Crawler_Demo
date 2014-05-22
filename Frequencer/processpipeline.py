@@ -72,6 +72,7 @@ class ConsumerTask(Thread):
         log_interval = 10
         processed = 0
         total_processed = 0
+        log_cost = 0
         while self._running:
             try:
                 if self._queue.empty():
@@ -91,7 +92,8 @@ class ConsumerTask(Thread):
                 start = time.time()
                 words = self.process(item[0], item[1])
                 cost = (time.time() - start) * 1000.0
-                self.logger.debug("[%s] Pure processing cost: %0.3f" % (self.name, cost))
+                log_cost += cost
+ #               self.logger.debug("[%s] Pure processing cost: %0.3f" % (self.name, cost))
                 content = json.dumps(words)
                 handler.write(content)
                 handler.write('\n')
@@ -101,7 +103,8 @@ class ConsumerTask(Thread):
                 if processed == log_interval:
                     handler.flush()
                     processed = 0
-                    self.logger.info("[%s] Processed %d items, So far total processed %d items." % (self.name, log_interval, total_processed))
+                    self.logger.info("[%s] Processed %d items cost %0.3f ms, So far total processed %d items." % (self.name, log_interval, log_cost, total_processed))
+                    log_cost = 0
                     if self._query_handler:
                         self._query_handler.flush()
             except Exception, e:
@@ -169,6 +172,7 @@ class ProducerTask(Thread):
                 self.logger.error(e)
                 if not self._running:
                     break
+        datadog.gauge('frequencer.page.process.num', total_processed)
         self.logger.info("Producer thread [%s] stopped!" % self.name)
 
     def stop_running(self):
@@ -270,9 +274,9 @@ if __name__ == "__main__":
     p.start()
     p.join()
     cost = (time.time() - start) * 1000.0
-
-    datadog.gauge('frequencer.page.process.cost', cost/1000 - MAX_IDLE_TIME)
-    logging.info("All Content processing cost: %0.3f" %  cost)
+    cost_in_seconds = cost/1000 - MAX_IDLE_TIME
+    datadog.gauge('frequencer.page.process.cost', cost_in_seconds)
+    logging.info("All Content processing cost: %0.3f s" %  cost_in_seconds)
     logging.info("Processing all logs......")
     #process the files
     dic = {}

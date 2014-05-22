@@ -56,6 +56,9 @@ class DBAdapter(object):
             update_sql = 'update %s set' % TABLENAME
             update_sql = update_sql + " frequency=%d where id = '%s'"
 
+            total_inserted =0
+            total_updated = 0
+
             while length > 0:
                 insert = []
                 update = {}
@@ -64,7 +67,7 @@ class DBAdapter(object):
                 else:
                     take = length
                 process = keys[start:start + take]
-                self.logger.debug("Processing keys: %s" % ", ".join(process))
+#                self.logger.debug("Processing keys: %s" % ", ".join(process))
                 params = ", ".join(map(lambda x: '%s', process))
                 query = sql + '(%s)' % params
                 cur.execute(query, process)
@@ -78,22 +81,30 @@ class DBAdapter(object):
                     if item not in updatekeys:
                         insert.append((item, dic[item]))
 
+                insert_len = len(insert)
+                total_inserted += insert_len
                 #insert not found words
-                self.logger.info("Inserting %d words to DB......" % len(insert))
+                self.logger.debug("Inserting %d words to DB......" % insert_len)
                 cur.executemany(insert_sql, insert)
-                self.logger.info("dic.word.inserted: %d" % len(insert))
-                datadog.gauge("dic.word.inserted", len(insert))
-                self.logger.info("Updating existed words......")
+                self.logger.debug("frequencer.db.word.inserted: %d" % insert_len)
+                datadog.gauge("frequencer.db.word.inserted", insert_len)
+                self.logger.debug("Updating existed words......")
                 #update existed words
                 for item in update:
                     q = update_sql % (update[item], item)
                     cur.execute(q)
-                    datadog.gauge('dic.word.updated', 1)
-                self.logger.info("dic.word.updated: %d" % len(update))
+                
+                updated_len = len(update)
+                total_updated += updated_len
+                datadog.gauge('frequencer.db.word.updated', updated_len)
+                self.logger.debug("frequencer.db.word.updated: %d" % updated_len)
                 start += take
                 length = length - take
                 conn.commit()
 
+            self.logger.info("total inserted: %d, total updated: %d" % (total_inserted, total_updated))
+            datadog.gauge("frequencer.db.word.total.inserted", total_inserted)
+            datadog.gauge('frequencer.db.word.total.updated', total_updated)
 #            conn.commit()
             cur.close()
             conn.close()

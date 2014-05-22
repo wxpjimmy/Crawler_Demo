@@ -11,8 +11,8 @@ FILTERS = ['frequencer.filter.stopwordsfilter.StopwordsFilter',
 #EXTRACTORS = ['frequencer.extractor.bsextractor.BSExtractor']
 EXTRACTORS = ['frequencer.extractor.lxmlextractor.LXMLExtractor']
 
-THREADS = 1
-QUEUE_SIZE = 100
+THREADS = 20
+QUEUE_SIZE = 500
 
 REDIS_SERVER = "localhost"
 
@@ -21,7 +21,7 @@ REDIS_PORT = "6379"
 REDIS_KEYS = [ "sitemap:msn:items", "sitemap:yahoo:items", "sitemap:huff:items", "sitemap:wsj:items", "sitemap:cnn:items", 
                "sitemap:reuter:items", "sitemap:bbc:items", "sitemap:forbes:items", "sitemap:usatoday:items", "sitemap:lifehacker:items",
                "sitemap:mashable:items", "sitemap:washingtonpost:items", "sitemap:nytimes:items", "sitemap:gulfnews:items",
-               "general:gnews:items", "general:theverge:items"]
+               "sitemap:techcrunch:items", "general:gnews:items", "general:theverge:items"]
 
 BACKUP_KEY = "frequencer:bak:items"
 
